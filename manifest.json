@@ -1,0 +1,29 @@
+{
+    "manifest_version": 3,
+    "name": "My Extension",
+    "version": "1.0",
+    "description" : "A chrome extension which detects and alerts users when on a phishing website.",
+
+    "action" : {
+
+        "default_title" : "Phishing Prevention Chrome Extension",
+        "default_popup" : "popup.html"
+
+    },
+
+    "permissions": [
+        "tabs",
+        "scripting"
+    ],
+    
+    "host_permissions":[
+        "<all_urls>"
+      ],
+    
+
+    "background" : {
+
+        "service_worker" : "background.js", "type" : "module"
+    }
+
+}
