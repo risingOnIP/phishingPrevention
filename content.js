@@ -50,7 +50,7 @@ function getDOM() {
 
   
    async function loadModel(){
-     let json = chrome.runtime.getURL('models/js/model.json')
+     let json = chrome.runtime.getURL('model.json')
   //  // chrome.storage.local.set({'model': json})
       const model = await tfjs.loadLayersModel(json)
       .then(model => { return model})
