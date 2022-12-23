@@ -14,16 +14,33 @@
     "permissions": [
         "tabs",
         "scripting"
-    ],
+        ],
     
     "host_permissions":[
         "<all_urls>"
       ],
-    
 
-    "background" : {
+    "content_scripts" :[ 
+        {
+            "matches" : ["<all_urls>"],
+            "js" : ["contentReal.js"]
+        }
+        ],
 
-        "service_worker" : "background.js", "type" : "module"
-    }
+        "web_accessible_resources": [
+            {
+            "resources" : [ "models/js/*"],
+            "matches" : ["<all_urls>"]
+            }
+        ],
+        "content_security_policy": {
+            "script-src" : "self",
+            "object-src" : "self" 
+        }
+
+        
+     
+            
+            
 
 }
