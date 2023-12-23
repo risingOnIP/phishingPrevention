@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Mooli&family=Roboto+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
+
+        body {
+            margin: 0;
+            padding: 20px;
+
+            width: 600px;
+            /* height: 400px; */
+
+            background-color: lightblue;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 20px;
+            /* align-items: center; */
+        }
+
+        .chars {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .text {
+            font-size: 32px;
+            font-weight: bold;
+            color: black;
+            font-family: 'Roboto Mono';
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            gap: 30px;
+        }
+
+        .buttons button {
+            width: 35%;
+            border-radius: 30px;
+            border: 1px black solid;
+            color: black;
+            font-family: 'Roboto Mono';
+            font-weight: bold;
+            font-size: 14px;
+
+            padding: 10px 2px;
+
+            background-color: lightblue;
+            transition: all ease 350ms;
+        }
+
+        .buttons button:hover {
+            color: white;
+            background-color: black;
+            cursor: pointer;
+        }
+
+        .img-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        img.shield {
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="img-wrapper"><img class="shield" src="Shield.png"></div>
+    <div class="chars"></div>
+    <embed src="siren.wav" autostart="true" width="0" height="0" id="siren" enablejavascript="true">
+
+    <div class="buttons">
+        <button id="close">Close Tab</button>
+        <button id="dismiss">Dismiss</button>
+    </div>
+
+    <script src="animate.js"></script>
+</body>
+</html>
