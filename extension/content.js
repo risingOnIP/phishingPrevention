@@ -1,104 +1,83 @@
 /**
- * content.js: content script injected into every page.
+ * content.js: content script injected into the top frame of every page.
  *
- * On page load it asks the service worker (worker.js) for the page origin,
- * the brand class predicted by the cloud classifier, and the resolved IP
- * addresses of the site, then stores the verdict in chrome.storage.local for
- * the toolbar popup (popup.html and animate.js) to display.
+ * On page load it asks the service worker (worker.js) to check the page and
+ * waits for the final verdict. When the page is flagged as phishing, it
+ * inserts a warning banner at the top of the page. The same verdict is shown
+ * in the toolbar popup (popup.html and popup.js).
  */
+
+/** Element id of the banner, so it is inserted at most once. */
+const BANNER_ID = "phishing-prevention-warning";
 
 /**
- * Inserts a red warning banner at the top of the current page.
+ * Inserts a fixed warning banner at the top of the current page.
+ *
+ * @param {string} message Explanation from the verdict, for example
+ *     "This page looks like PayPal but is not hosted by paypal.com."
  */
-const danger_popup = function () {
-    const injectElement = document.createElement("div");
-    injectElement.className = 'inject-element';
-    injectElement.innerHTML = "<b><h1>The website below is potentially a phishing website</h1></b>";
+function showWarningBanner(message) {
+    if (document.getElementById(BANNER_ID)) {
+        return;
+    }
 
-    injectElement.innerHTML = injectElement.innerText + "<br>" + "Be careful!" + "</br>";
+    const banner = document.createElement("div");
+    banner.id = BANNER_ID;
+    banner.setAttribute("role", "alert");
+    Object.assign(banner.style, {
+        position: "fixed",
+        top: "0",
+        left: "0",
+        right: "0",
+        zIndex: "2147483647",
+        display: "flex",
+        alignItems: "center",
+        gap: "16px",
+        padding: "16px 24px",
+        background: "#B91C1C",
+        color: "#FFFFFF",
+        font: "16px/1.4 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+        boxShadow: "0 2px 12px rgba(0, 0, 0, 0.35)",
+    });
 
-    injectElement.style.textAlign = 'center';
-    injectElement.style.height = "300px";
-    injectElement.style.width = "500 px";
-    injectElement.style.font = "Georgia";
+    const text = document.createElement("div");
+    text.style.flex = "1";
+    const title = document.createElement("strong");
+    title.textContent = "Warning: this is likely a phishing website.";
+    title.style.display = "block";
+    title.style.fontSize = "20px";
+    const detail = document.createElement("span");
+    detail.textContent = `${message} Do not enter passwords or payment details.`;
+    text.append(title, detail);
 
-    injectElement.style.color = "black";
-    injectElement.style.backgroundColor = "red";
-    injectElement.style.fontSize = 'x-large';
-    injectElement.style.border = "5px";
-    injectElement.style.lineHeight = "100px";
-    injectElement.style.fontWeight = 'bold';
+    const dismiss = document.createElement("button");
+    dismiss.type = "button";
+    dismiss.textContent = "Dismiss";
+    Object.assign(dismiss.style, {
+        padding: "8px 16px",
+        border: "1px solid #FFFFFF",
+        borderRadius: "6px",
+        background: "transparent",
+        color: "#FFFFFF",
+        font: "inherit",
+        cursor: "pointer",
+    });
+    dismiss.addEventListener("click", () => banner.remove());
 
-    document.body.insertBefore(injectElement, document.body.firstChild);
-};
-
-// Brand class of the protected ("user defined") website: Bank of America.
-let udw = 'boa';
-let popRequired = false;
+    banner.append(text, dismiss);
+    (document.body || document.documentElement).prepend(banner);
+}
 
 (async () => {
-    // Origin of the current page (protocol and hostname), HTTPS pages only.
-    const response = await chrome.runtime.sendMessage({utility: "getURL"});
-    if (Object.keys(response).includes('error')) {
-        console.log("Oh there's an error --> " + response.error);
+    let verdict;
+    try {
+        verdict = await chrome.runtime.sendMessage({ type: "checkPage" });
+    } catch (error) {
+        console.error("Phishing Prevention: page check failed:", error);
+        return;
     }
-    else {
-        var link = response['url'];
+
+    if (verdict?.status === "phishing") {
+        showWarningBanner(verdict.message);
     }
-
-    // Brand predicted by the cloud classifier from a screenshot of the origin.
-    chrome.runtime.sendMessage({utility: "getClassification", url: link})
-        .then(output => {
-            let pred = output.class;
-            // Debug override: the IP lookup currently runs for every page.
-            const t = true;
-
-            if (pred == udw || t) {
-                chrome.runtime.sendMessage({utility: "getIP"})
-                    .then(ip => {
-                        let printing = "";
-                        if (ip.ip[0] == 'improper') {
-                            console.log("Oops, looks like something went wrong with ---> " + ip.ip[1]);
-                        }
-                        else {
-                            for (let i = 0; i < ip.ip[1].length; i++) {
-                                printing += ip.ip[1][i] + ", ";
-                            }
-
-                            if (ip.ip[1].length > 1) {
-                                printing = ("IP addresses are: " + printing).slice(0, -2);
-                            }
-                            else {
-                                printing = ("IP addresses is: " + printing).slice(0, -2);
-                            }
-                        }
-
-                        // ip.ip[1] holds the resolved addresses, printing holds
-                        // them as a display string, and pred holds the brand class.
-                        let sameUdw = false;
-                        chrome.runtime.sendMessage({utility: "getValidationIP"})
-                            .then((v_IP) => {
-                                if (ip == v_IP) {
-                                    sameUdw = true;
-                                }
-                            });
-                        let safe = true;
-                        if (!sameUdw && pred == udw) {
-                            safe = false;
-                            popRequired = true;
-                        }
-                        if (pred != udw || sameUdw) {
-                            safe = true;
-                            popRequired = false;
-                        }
-
-                        chrome.storage.local.set({url: link, ipString: printing, ipArr: ip.ip[1], classification: pred, isSafe: safe});
-                    });
-            }
-        });
 })();
-
-if (popRequired) {
-    danger_popup();
-    alert("This is a potential phishing website!!!");
-}
