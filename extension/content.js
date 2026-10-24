@@ -1,106 +1,104 @@
-//functions
+/**
+ * content.js: content script injected into every page.
+ *
+ * On page load it asks the service worker (worker.js) for the page origin,
+ * the brand class predicted by the cloud classifier, and the resolved IP
+ * addresses of the site, then stores the verdict in chrome.storage.local for
+ * the toolbar popup (popup.html and animate.js) to display.
+ */
 
-const danger_popup  = function () {
+/**
+ * Inserts a red warning banner at the top of the current page.
+ */
+const danger_popup = function () {
     const injectElement = document.createElement("div");
     injectElement.className = 'inject-element';
-    injectElement.innerHTML =  "<b><h1>The website below is potentially a phishing website</h1></b>";
-    
-    injectElement.innerHTML = injectElement.innerText + "<br>" + "Be careful!" +"</br>"
-    
-    injectElement.style.textAlign = 'center'
-    injectElement.style.height = "300px"
-    injectElement.style.width = "500 px"
-    injectElement.style.font = "Georgia"
+    injectElement.innerHTML = "<b><h1>The website below is potentially a phishing website</h1></b>";
+
+    injectElement.innerHTML = injectElement.innerText + "<br>" + "Be careful!" + "</br>";
+
+    injectElement.style.textAlign = 'center';
+    injectElement.style.height = "300px";
+    injectElement.style.width = "500 px";
+    injectElement.style.font = "Georgia";
 
     injectElement.style.color = "black";
-    injectElement.style.backgroundColor = "red"
-    injectElement.style.fontSize = 'x-large'
-    injectElement.style.border = "5px"
-    injectElement.style.lineHeight = "100px"
-    injectElement.style.fontWeight = 'bold'
-    
-   document.body.insertBefore(injectElement, document.body.firstChild)
-}
+    injectElement.style.backgroundColor = "red";
+    injectElement.style.fontSize = 'x-large';
+    injectElement.style.border = "5px";
+    injectElement.style.lineHeight = "100px";
+    injectElement.style.fontWeight = 'bold';
 
+    document.body.insertBefore(injectElement, document.body.firstChild);
+};
 
-let udw = 'boa'; //user defined website
+// Brand class of the protected ("user defined") website: Bank of America.
+let udw = 'boa';
 let popRequired = false;
 
-//async function start
 (async () => {
-    //do something with response inside but not outside
-
+    // Origin of the current page (protocol and hostname), HTTPS pages only.
     const response = await chrome.runtime.sendMessage({utility: "getURL"});
     if (Object.keys(response).includes('error')) {
         console.log("Oh there's an error --> " + response.error);
     }
     else {
-        var link = response['url']
+        var link = response['url'];
     }
 
-    //url is stored in 'link'
+    // Brand predicted by the cloud classifier from a screenshot of the origin.
     chrome.runtime.sendMessage({utility: "getClassification", url: link})
-    .then(output => {
-        
-       let pred = output.class;
-        const t = true;
+        .then(output => {
+            let pred = output.class;
+            // Debug override: the IP lookup currently runs for every page.
+            const t = true;
 
-         if (pred == udw || t) {
-             chrome.runtime.sendMessage({utility: "getIP"})
-             .then(ip => {
-                 let printing = "";
-                 if (ip.ip[0] == 'improper') {
-                     console.log("Oops, looks like something went wrong with ---> " + ip.ip[1])
-                }
-                else {
-                    for (let i = 0; i < ip.ip[1].length; i++) {
-                        printing += ip.ip[1][i] + ", "
-                    }
+            if (pred == udw || t) {
+                chrome.runtime.sendMessage({utility: "getIP"})
+                    .then(ip => {
+                        let printing = "";
+                        if (ip.ip[0] == 'improper') {
+                            console.log("Oops, looks like something went wrong with ---> " + ip.ip[1]);
+                        }
+                        else {
+                            for (let i = 0; i < ip.ip[1].length; i++) {
+                                printing += ip.ip[1][i] + ", ";
+                            }
 
-                    if (ip.ip[1].length > 1) {
-                        printing = ("IP addresses are: " + printing).slice(0, -2);
-                    }
-                    else {
-                        printing = ("IP addresses is: " + printing).slice(0, -2)
-                    }
-                    
-                 }
+                            if (ip.ip[1].length > 1) {
+                                printing = ("IP addresses are: " + printing).slice(0, -2);
+                            }
+                            else {
+                                printing = ("IP addresses is: " + printing).slice(0, -2);
+                            }
+                        }
 
+                        // ip.ip[1] holds the resolved addresses, printing holds
+                        // them as a display string, and pred holds the brand class.
+                        let sameUdw = false;
+                        chrome.runtime.sendMessage({utility: "getValidationIP"})
+                            .then((v_IP) => {
+                                if (ip == v_IP) {
+                                    sameUdw = true;
+                                }
+                            });
+                        let safe = true;
+                        if (!sameUdw && pred == udw) {
+                            safe = false;
+                            popRequired = true;
+                        }
+                        if (pred != udw || sameUdw) {
+                            safe = true;
+                            popRequired = false;
+                        }
 
-    //             //ip addresses are stored in ip.ip[1]
-    //             //string of ip addresses is stored in printing
-    //             //classification is stored in pred
-                 let sameUdw = false;
-                chrome.runtime.sendMessage({utility: "getValidationIP"})
-                .then((v_IP) =>{
-                    if (ip == v_IP) {
-                        sameUdw = true;
-                    }
-                }
-                )
-                let safe = true;
-                if (!sameUdw && pred == udw) {
-                    safe = false;
-                    popRequired = true;
-                }
-                if (pred != udw || sameUdw) {
-                    safe = true;
-                    popRequired = false;
-                }
-
-                chrome.storage.local.set({url: link, ipString: printing, ipArr : ip.ip[1], classification: pred, isSafe: safe})
-
-
-
-            })
-        }
-
-
-    })
-    
-})()
+                        chrome.storage.local.set({url: link, ipString: printing, ipArr: ip.ip[1], classification: pred, isSafe: safe});
+                    });
+            }
+        });
+})();
 
 if (popRequired) {
-    danger_popup()
-    alert("This is a potential phishing website!!!")
+    danger_popup();
+    alert("This is a potential phishing website!!!");
 }
