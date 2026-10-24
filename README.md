@@ -1,34 +1,63 @@
+<p align="center"><img src="docs/assets/banner.svg" alt="Phishing Prevention" width="100%"></p>
+
 # Phishing Prevention
 
 **Detects look-alike phishing pages by recognizing the brand they imitate and verifying where they are hosted.**
 
-![Status](https://img.shields.io/badge/Status-Prototype-15803D?style=flat-square&labelColor=111827) [![US Patent](https://img.shields.io/badge/US%20Patent-12%2C445%2C488%20B2-B45309?style=flat-square&labelColor=111827)](https://patents.google.com/patent/US12445488B2/) ![Chrome Extension](https://img.shields.io/badge/Chrome-Extension%20MV3-2563EB?style=flat-square&labelColor=111827&logo=googlechrome&logoColor=white) ![Python](https://img.shields.io/badge/Python-Flask-2563EB?style=flat-square&labelColor=111827&logo=python&logoColor=white) ![TensorFlow](https://img.shields.io/badge/TensorFlow-CNN-2563EB?style=flat-square&labelColor=111827&logo=tensorflow&logoColor=white) ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-6B7280?style=flat-square&labelColor=111827)
+![Status](https://img.shields.io/badge/Status-Reference%20Implementation-15803D?style=flat-square&labelColor=111827) [![US Patent](https://img.shields.io/badge/US%20Patent-12%2C445%2C488%20B2-B45309?style=flat-square&labelColor=111827)](https://patents.google.com/patent/US12445488B2/) ![Chrome Extension](https://img.shields.io/badge/Chrome-Extension%20MV3-2563EB?style=flat-square&labelColor=111827&logo=googlechrome&logoColor=white) ![Python](https://img.shields.io/badge/Python-Flask-2563EB?style=flat-square&labelColor=111827&logo=python&logoColor=white) ![TensorFlow](https://img.shields.io/badge/TensorFlow-CNN-2563EB?style=flat-square&labelColor=111827&logo=tensorflow&logoColor=white) ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-6B7280?style=flat-square&labelColor=111827)
 
-Phishing Prevention is the reference prototype for U.S. Patent No. 12,445,488 B2. A Chrome extension sends each page it visits to a cloud service that screenshots the page and classifies it with a convolutional neural network (CNN) trained on 15 brand classes, then resolves the site's IP addresses for comparison with the legitimate brand's infrastructure. The goal is to flag a page that looks like a protected brand but is not served by that brand, even when the domain has never been seen before.
+Phishing Prevention is the reference implementation of U.S. Patent No. 12,445,488 B2. A Chrome extension and a self-hosted classification server work together to recognize when a page imitates one of 14 frequently impersonated brands, then verify the page's IP addresses and TLS certificate against that brand's real infrastructure. A cloned login page is flagged the moment it loads, even on a domain no blocklist has ever seen.
 
 ## Overview
 
-The repository has two parts: a Manifest V3 Chrome extension (`extension/`) and a Flask inference service (`cloudHost/`). The extension gathers the page origin and its DNS records, asks the service which brand the page resembles, and shows the verdict in the toolbar popup. The service renders the page in headless Chrome and runs the screenshot through a Keras CNN stored in TensorFlow.js format.
+Phishing Prevention judges a page by two independent identities: what it looks like and where it is served from. A convolutional neural network (CNN) recognizes the brand a page imitates from a screenshot. When the match is confident, the extension checks whether the page is hosted on that brand's infrastructure, and warns the user when it is not.
 
-- **Visual brand recognition:** a CNN classifies a 50 x 50 pixel screenshot into 14 commonly impersonated brands or `other`.
-- **Network identity lookup:** the service worker resolves the visited site and the reference site (bankofamerica.com) through Google DNS-over-HTTPS.
-- **In-browser verdict:** the toolbar popup reads the stored result and displays "You are safe." or "You are being phished.", with a button that closes the tab.
+- **Visual brand recognition:** a CNN classifies a rendered screenshot into 14 brands or `other` and reports its softmax confidence.
+- **Similarity threshold:** only matches at or above a configurable confidence (0.85 by default) trigger the infrastructure check.
+- **Network identity check:** the page's resolved IP addresses must overlap the brand domain's addresses.
+- **Certificate identity check:** the page's TLS certificate must carry the same subject organization and issuer as the brand's certificate.
+- **Immediate warning:** a flagged page receives an in-page banner, a red toolbar badge, and a popup that lists the evidence.
 
 ## Business Case
 
 ### The Problem
 
-Phishing kits let attackers clone a bank or SaaS login page in minutes and host it on fresh domains. Blocklists and URL heuristics lag behind these zero-day pages, and a pixel-perfect clone defeats user vigilance. The patent background notes that filter and heuristic defenses are limited against zero-day phishing and suffer high false-positive rates.
+An employee opens an invoice email, clicks the link, and lands on a pixel-perfect copy of the company's sign-in page, hosted on a domain registered that morning. No blocklist has seen the domain, the address looks plausible, and nothing on screen differs from the real page. One typed password can open the door to account takeover, payment fraud, ransomware, and the investigation, disclosure, and reputational costs that follow. Phishing kits make these clones cheap to produce at scale, so defenses that wait for a page to be reported are always one step behind.
 
 ### Who It Serves
 
-- **Consumers and employees:** receive a warning at the moment they land on an impersonating page.
-- **Banks and high-risk brands:** protect customers without waiting for domain takedowns.
-- **Security vendors:** browser security, secure web gateways, email link scanners, and managed security providers can embed the method in existing products.
+- **Consumers and employees:** receive a clear warning at the moment an impersonating page loads, before any credential is typed.
+- **Enterprise security teams:** stop zero-day credential harvesting pages across the workforce without waiting for threat feed updates.
+- **Banks, payment providers, and high-risk brands:** protect customers from clones of their own sign-in pages wherever those clones are hosted.
+- **Security vendors:** browser security, secure web gateway, email security, and managed security providers can license the method and embed it in existing products.
 
 ### The Outcome
 
-A page that looks like a protected brand but is not served from that brand's infrastructure is flagged, even if the domain has never been seen before. The decision rests on two signals that attackers find hard to fake together: visual identity and network identity.
+- A page that looks like a protected brand but is not served from that brand's infrastructure is flagged on first sight, with no prior report, blocklist entry, or domain reputation required.
+- The verdict rests on two signals that an attacker cannot fake together: a clone can copy every pixel of a bank's page, but it cannot be served from the bank's IP addresses or present the bank's certificate.
+- Genuine brand pages pass, because their addresses and certificates match, so protection does not come at the cost of blocking the real site.
+- The same decision engine deploys as a browser extension (this repository), a secure web gateway or endpoint agent service, an email link scanning stage, or a managed detection service.
+
+### Market Applications
+
+| Sector | Application | Value Delivered |
+|---|---|---|
+| Consumer security | Browser extension or built-in browser protection | Warns at page load, before credentials or card numbers are entered |
+| Enterprise security | Secure web gateway or endpoint agent policy | Blocks newly registered credential harvesting pages across the workforce on first visit |
+| Email security | Link detonation in a sandbox | Renders links before delivery and convicts brand impersonation with evidence |
+| Banking and payments | Customer brand protection | Detects clones of the institution's own sign-in pages wherever they are hosted |
+| Logistics and e-commerce | Delivery and order notification lures | Flags fake DHL, Amazon, and similar pages that ride on shipping and order emails |
+| Managed security services | Security operations triage | Returns an automatic verdict with brand, IP, and certificate evidence for reported URLs |
+| Threat intelligence | Phishing feed generation | Supplies confirmed phishing URLs to repositories such as PhishTank, OpenPhish, and Google Safe Browsing |
+
+### Why This Approach
+
+| Approach | How It Works | Weakness | This Project |
+|---|---|---|---|
+| URL blocklists | Match the address against lists of reported phishing URLs | Blind to new domains until someone reports them, which leaves a window of exposure | Judges the page itself, so no prior report is needed |
+| URL and domain heuristics | Score lexical features, domain age, and look-alike spellings | Evaded by clean-looking domains and prone to false positives, as the patent background notes | Decides on visual identity and network identity instead of the address text |
+| Visual similarity alone | Compare a screenshot with known brand pages | Cannot tell a clone from the original, so the brand's own pages are flagged too | Confirms each visual match against the brand's real IP addresses and certificate |
+| User awareness training | Teach users to spot suspicious cues | A pixel-perfect clone on a plausible domain leaves nothing to spot | Checks automatically on every page load, with no user judgment required |
 
 ## Patent
 
@@ -43,69 +72,145 @@ The method implemented in this repository is protected by [U.S. Patent No. 12,44
 | Granted | October 14, 2025 |
 | Pre-grant publication | US 2023/0344868 A1 (October 26, 2023) |
 
-**Claimed approach.** The method obtains a suspect link, captures an image of the page, and detects visual similarity to a pre-configured legitimate site labeled in a database, for example with a CNN. Only when similarity is found does it obtain the suspect site's IP address or digital certificate and compare it, statically or dynamically, with the legitimate site's records. An alarm is raised when they differ. Further variants cover the certificate check, a combined IP and certificate check, a similarity threshold, and a training pipeline that clusters and auto-labels screenshots and retrains the fully connected layer of a pre-trained CNN.
+**Claimed approach.** The method obtains a suspect link, captures an image of the page, and detects visual similarity to a pre-configured legitimate site labeled in a database, for example with a CNN. Only when similarity is found does it obtain the suspect site's IP address, digital certificate, or both, and compare them, statically or dynamically, with the legitimate site's records. An alarm is raised when they differ. Further claims cover a similarity threshold (85% to 99.9%) and a training pipeline that clusters and auto-labels screenshots and retrains the fully connected layer of a pre-trained CNN.
 
 **Commercial application.** The method applies wherever a page can be rendered before the user trusts it:
 
 - Browser security extensions and endpoint agents.
-- Enterprise secure web gateways.
-- Email security link-detonation services.
-- Brand protection services for banks, payment providers, and logistics companies (the 15 trained classes cover frequently impersonated brands).
+- Enterprise secure web gateways and network security appliances.
+- Email security link detonation services.
+- Brand protection services for banks, payment providers, and logistics companies.
 - Threat intelligence feeds that report confirmed phishing sites to repositories such as PhishTank, OpenPhish, and Google Safe Browsing.
 
-**Relationship to this code.** This repository is a reference prototype of the image plus IP-comparison embodiment, with one protected brand (Bank of America) configured. The certificate comparison, the similarity threshold, and the retraining pipeline are not implemented, and the IP comparison step is not yet effective (see [Scope and Limitations](#scope-and-limitations)).
+**Relationship to this code.** This repository implements the combined embodiment: image capture and CNN similarity with a configurable threshold, followed by both the IP address comparison and the certificate comparison against the legitimate brand's records, retrieved dynamically at check time. The screenshot clustering and retraining pipeline is listed in the [Roadmap](#roadmap).
 
 **Patent notice.** No license under this patent is granted by this repository, expressly or by implication. For licensing inquiries, contact the author via [GitHub](https://github.com/risingOnIP).
 
 ## How It Works
 
-The content script collects the page origin, the predicted brand, and the site's IP addresses through the service worker, then stores a verdict that the toolbar popup displays.
+Each page load runs a two-stage decision in the extension's service worker: first "does this page look like a protected brand?", then "is it served by that brand?".
+
+![Phishing Prevention architecture: the browser extension, the classification server, DNS over HTTPS, and the legitimate brand records feed a two-stage decision that ends in a safe verdict or a phishing alarm](docs/assets/architecture.svg)
+
+1. **Page load:** `extension/content.js` runs in the top frame of every page and sends a `checkPage` message to the service worker.
+2. **Visual classification:** `extension/worker.js` posts the full page URL to the `/image` route of `server/app.py`, which renders the page in headless Chrome and returns the CNN's brand class and softmax confidence.
+3. **Similarity threshold:** the check continues only when the class is a protected brand in `extension/config.js` and the confidence is at or above `SIMILARITY_THRESHOLD`. Pages on the brand's own domain or its subdomains are accepted at this point.
+4. **Reference records:** the brand map in `config.js` supplies the legitimate domain, for example `boa` to `bankofamerica.com` and `paypal` to `paypal.com`.
+5. **Infrastructure comparison:** in parallel, the worker resolves A records for the page host and for the brand domain and its `www` host through DNS over HTTPS, and the server's `/certificate` route compares the page's TLS certificate with the brand's.
+6. **Verdict:** the page is flagged when the IP address sets do not overlap or the certificates do not match. The worker stores the verdict for the tab, sets the toolbar badge, and returns it to `content.js`, which inserts the warning banner.
+7. **Popup:** `extension/popup.html` and `extension/popup.js` show the verdict and its evidence for the active tab, with "Close Tab" and "Dismiss" buttons.
+
+### Decision Rule
+
+| Visual Match | IP Addresses Overlap | Certificate Matches | Verdict |
+|---|---|---|---|
+| No protected brand, or confidence below the threshold | Not checked | Not checked | Safe |
+| Protected brand, page on the brand's own domain | Not checked | Not checked | Safe |
+| Protected brand at or above the threshold | Yes | Yes | Safe |
+| Protected brand at or above the threshold | No | Either | Phishing |
+| Protected brand at or above the threshold | Either | No | Phishing |
+
+A page served over plain HTTP presents no certificate, so it never matches a brand's certificate.
+
+### Component Diagram
 
 ```mermaid
 %%{init: {"theme": "neutral"}}%%
 flowchart LR
     subgraph browser["Browser"]
-        page["Visited Page"] --> content["Content Script"]
-        content <-->|"messages"| worker["Service Worker"]
-        content --> storage["Extension Storage"]
-        storage --> popup["Toolbar Popup"]
+        page["Visited Page"] -->|"page load"| content["Content Script"]
+        content -->|"checkPage"| worker["Service Worker"]
     end
-    subgraph cloud["Cloud Host"]
-        api["Flask API"] --> chrome["Headless Chrome"]
-        chrome -->|"screenshot"| cnn["CNN Brand Classifier"]
+    subgraph server["Classification Server"]
+        chrome["Headless Chrome"] -->|"screenshot"| cnn["CNN Brand Classifier"]
+        certs["Certificate Inspector"]
     end
-    worker -->|"page origin"| api
-    cnn -->|"brand class"| worker
-    worker -->|"resolve IPs"| dns["DNS over HTTPS"]
+    worker -->|"full page URL"| chrome
+    cnn -->|"class and confidence"| visual{"Protected Brand Above Threshold?"}
+    visual -->|"no"| safe["Safe Verdict"]
+    visual -->|"yes"| dns["DNS Over HTTPS"]
+    visual -->|"yes"| certs
+    brand["Legitimate Brand Records"] -->|"brand domain"| dns
+    brand -->|"brand domain"| certs
+    dns -->|"IP addresses"| infra{"IPs And Certificate Match?"}
+    certs -->|"certificate match"| infra
+    infra -->|"yes"| safe
+    infra -->|"no"| alarm["Phishing Alarm"]
+    classDef core fill:#2563EB,stroke:#1E40AF,color:#FFFFFF
+    classDef guard fill:#15803D,stroke:#166534,color:#FFFFFF
+    classDef threat fill:#B45309,stroke:#92400E,color:#FFFFFF
+    classDef infra fill:#374151,stroke:#111827,color:#FFFFFF
+    classDef external fill:#F3F4F6,stroke:#6B7280,color:#111827
+    class content,worker,chrome,cnn,certs core
+    class visual,infra,safe guard
+    class page,alarm threat
+    class dns,brand external
 ```
 
-1. **Origin:** on page load, `extension/content.js` sends `getURL`, and `extension/worker.js` returns the HTTPS origin of the tab.
-2. **Classification:** `getClassification` posts `{"url": <origin>}` to the `/image` route of `cloudHost/app.py`.
-3. **Screenshot:** `app.py` opens the origin in headless Chrome through Selenium, waits 3 seconds, and saves a screenshot.
-4. **Inference:** the screenshot is resized to 50 x 50 pixels and classified by the CNN (two convolution and pooling stages, a 64-unit dense layer, and a 15-way softmax), and the class name is returned.
-5. **Network identity:** `getIP` and `getValidationIP` resolve the visited site and bankofamerica.com through `https://dns.google/resolve` and return their A records.
-6. **Verdict:** `content.js` writes `{url, ipString, ipArr, classification, isSafe}` to `chrome.storage.local`.
-7. **Display:** `extension/popup.html` and `extension/animate.js` read `isSafe` and type out the verdict, with "Close Tab" and "Dismiss" buttons.
+### Page Visit Sequence
+
+```mermaid
+%%{init: {"theme": "neutral"}}%%
+sequenceDiagram
+    autonumber
+    actor User
+    participant CS as Content Script
+    participant SW as Service Worker
+    participant API as Classification Server
+    participant DNS as DNS Over HTTPS
+    participant UI as Toolbar Popup
+    User->>CS: Opens a page
+    CS->>SW: checkPage
+    SW->>SW: Store checking status for the tab
+    SW->>API: POST /image with the full page URL
+    API-->>SW: Brand class and confidence
+    alt No protected brand or confidence below threshold
+        SW->>SW: Verdict is safe
+    else Page on the brand's own domain
+        SW->>SW: Verdict is safe
+    else Protected brand at or above threshold
+        par Suspect addresses
+            SW->>DNS: Resolve the page host
+            DNS-->>SW: A records
+        and Reference addresses
+            SW->>DNS: Resolve the brand domain and its www host
+            DNS-->>SW: A records
+        and Certificates
+            SW->>API: POST /certificate
+            API-->>SW: Match result and reason
+        end
+        SW->>SW: Safe only if addresses overlap and certificate matches
+    end
+    SW->>SW: Store verdict for the tab and set badge
+    SW-->>CS: Final verdict
+    opt Verdict is phishing
+        CS->>User: Warning banner on the page
+    end
+    User->>UI: Opens the toolbar popup
+    UI->>UI: Read the stored verdict for the tab
+    UI-->>User: Verdict with brand, IP, and certificate evidence
+```
 
 ## Tech Stack
 
 | Layer | Technology | Purpose |
 |---|---|---|
-| Client | Chrome Extension, Manifest V3 (JavaScript) | Content script, service worker, and toolbar popup |
-| Network | Google DNS-over-HTTPS | Resolves A records for the visited and reference sites |
-| Backend | Flask | HTTP API for classification (`/image`, `/predict`) |
-| Tooling | Selenium with headless Chrome | Renders the page and captures a screenshot |
-| Model | Keras CNN in TensorFlow.js format (`tensorflowjs`) | Classifies screenshots into 15 brand classes |
+| Client | Chrome Extension, Manifest V3 (JavaScript) | Content script, service worker decision engine, and toolbar popup |
+| Backend | Flask | HTTP API: `/image`, `/predict`, and `/certificate` |
+| Tooling | Selenium with headless Chrome | Renders the visited page and captures a screenshot |
+| Model | Keras CNN in TensorFlow.js format (`tensorflowjs`) | Classifies screenshots into 15 classes with softmax confidence |
 | Data | Pillow and NumPy | Resizes and normalizes screenshots for inference |
+| Network | Google DNS over HTTPS | Resolves A records for the page host and the brand domain |
+| Network | Python `ssl` | Retrieves and verifies TLS certificates for comparison |
 
 ## Getting Started
 
 ### Prerequisites
 
-- Google Chrome, for loading the unpacked extension.
+- Google Chrome (desktop) to run the extension.
 - Python 3.9 or later, in a version supported by TensorFlow, on the server host.
-- Google Chrome installed on the server host for headless rendering.
-- The model weight files `group1-shard1of2.bin` and `group1-shard2of2.bin` (not distributed in this repository).
+- Google Chrome on the server host for headless rendering. Selenium 4.6 or later downloads a matching ChromeDriver automatically.
+- The trained weight files `group1-shard1of2.bin` and `group1-shard2of2.bin`, available from the author under license.
 
 ### Installation
 
@@ -116,86 +221,114 @@ flowchart LR
    cd phishingPrevention
    ```
 
-2. Create a virtual environment for the cloud host and install its dependencies.
+2. Create a virtual environment for the server and install its dependencies.
 
    ```bash
-   cd cloudHost
+   cd server
    python3 -m venv .venv
    source .venv/bin/activate
    pip install -r requirements.txt
    ```
 
-3. Copy the two weight shards into `cloudHost/models/js/`, next to `model.json`.
+3. Copy the two weight shards into `server/models/js/`, next to `model.json`.
 
-4. Load the extension: open `chrome://extensions`, turn on Developer mode, choose "Load unpacked", and select the `extension/` folder.
+   ```text
+   server/models/js/
+   ├── model.json
+   ├── group1-shard1of2.bin
+   └── group1-shard2of2.bin
+   ```
+
+4. Start the server. It listens on `http://127.0.0.1:5000` by default.
+
+   ```bash
+   python app.py
+   ```
+
+5. Load the extension: open `chrome://extensions`, turn on Developer mode, choose "Load unpacked", and select the `extension/` folder.
 
 ### Configuration
 
+The server reads environment variables. The extension reads constants from `extension/config.js`; after editing that file, click the reload icon for the extension on `chrome://extensions`.
+
 | Variable | Required | Description |
 |---|---|---|
-| `CHROME_BINARY` | No | Path to the Chrome executable used by Selenium in `cloudHost/app.py`. Defaults to `/usr/bin/google-chrome`. |
-| `CLASSIFIER_API_URL` | No | Constant in `extension/worker.js` that holds the classifier endpoint. Point it at a self-hosted `/image` route, for example `http://127.0.0.1:5000/image`. |
+| `CHROME_BINARY` | No | Server. Chrome executable used by Selenium. Defaults to `/usr/bin/google-chrome`. |
+| `MODEL_PATH` | No | Server. Path to `model.json`. Defaults to `models/js/model.json` next to `app.py`. |
+| `HOST` | No | Server. Bind address. Defaults to `127.0.0.1`; set `0.0.0.0` to serve other machines. |
+| `PORT` | No | Server. Listening port. Defaults to `5000`. |
+| `SERVER_URL` | No | Extension, `config.js`. Base address of the classification server. Defaults to `http://localhost:5000`. |
+| `SIMILARITY_THRESHOLD` | No | Extension, `config.js`. Minimum softmax confidence for a brand match. Defaults to `0.85`. |
+| `PROTECTED_BRANDS` | No | Extension, `config.js`. Map from class name to brand name and legitimate domain. Covers the 14 named classes. |
+| `DNS_RESOLVER_URL` | No | Extension, `config.js`. DNS over HTTPS JSON endpoint. Defaults to `https://dns.google/resolve`. |
+
+To use a shared server, run it on a host reachable by the browsers it protects (preferably behind HTTPS) and set `SERVER_URL` to that address, for example `https://phishing-check.example.com`.
 
 ### Usage
 
-Start the inference service from the `cloudHost/` folder (the model path is relative to the working directory).
+Check that the server is running.
 
 ```bash
-python app.py
+curl http://localhost:5000/
 ```
 
-Check the service with a sample request.
+Classify a page by URL.
 
 ```bash
-curl -X POST http://127.0.0.1:5000/image -H "Content-Type: application/json" -d '{"url": "https://www.example.com"}'
+curl -X POST http://localhost:5000/image -H "Content-Type: application/json" -d '{"url": "https://www.example.com/login"}'
 ```
 
-The service responds with the predicted class name as a JSON string. In the browser, open an HTTPS page, wait a few seconds for the checks to finish, and click the toolbar icon to see the verdict.
+The response is `{"class": <brand class>, "confidence": <0 to 1>}`.
+
+Compare a host's certificate with a brand domain's certificate.
+
+```bash
+curl -X POST http://localhost:5000/certificate -H "Content-Type: application/json" -d '{"hostname": "www.example.com", "domain": "paypal.com"}'
+```
+
+The response holds `match`, a `reason`, and the subject organization, common name, and issuer of both certificates.
+
+In the browser, open any page and click the toolbar icon. The popup shows "You are safe." or "You are being phished." with the brand match, its confidence, and the IP and certificate results; a flagged page also shows a red warning banner and a "!" badge on the icon.
 
 ## Project Structure
 
 ```text
 phishingPrevention/
-├── cloudHost/
-│   ├── app.py              # Flask API, screenshot, and CNN inference
-│   ├── requirements.txt    # Python dependencies
-│   └── models/js/
-│       └── model.json      # CNN topology and weight manifest
+├── docs/assets/
+│   ├── architecture.svg     # Architecture schematic
+│   └── banner.svg           # README banner
 ├── extension/
-│   ├── manifest.json       # Manifest V3 configuration
-│   ├── content.js          # Per-page checks and stored verdict
-│   ├── worker.js           # Service worker message handlers
-│   ├── popup.html          # Toolbar popup layout
-│   ├── animate.js          # Popup verdict text and buttons
-│   └── Shield.png          # Extension icon and popup image
+│   ├── manifest.json        # Manifest V3 configuration
+│   ├── config.js            # Server URL, threshold, brand map
+│   ├── worker.js            # Decision engine and verdict storage
+│   ├── content.js           # Requests verdict, shows warning banner
+│   ├── popup.html           # Toolbar popup layout
+│   ├── popup.js             # Popup verdict, evidence, and buttons
+│   └── Shield.png           # Extension icon and popup image
+├── server/
+│   ├── app.py               # Flask API, screenshots, CNN, certificates
+│   ├── requirements.txt     # Python dependencies
+│   └── models/js/
+│       └── model.json       # CNN topology and weight manifest
 ├── LICENSE
 ├── NOTICE
 └── README.md
 ```
 
-## Scope and Limitations
+## Notes
 
-- The current build protects one configured brand (Bank of America, class `boa`), with bankofamerica.com as the reference site.
-- The IP lookup runs for every page, not only for pages classified as the protected brand, because of a debug override in `content.js`.
-- The comparison between the visited site's addresses and the reference addresses is not yet effective: it compares message objects and is read before the reference lookup completes. As a result, the stored verdict currently follows the classifier alone, so any page classified as `boa` is marked unsafe, including the genuine bankofamerica.com.
-- The in-page red banner and alert in `content.js` are evaluated before the asynchronous checks finish, so the toolbar popup is the only place the verdict appears.
-- The verdict is stored as a single value, so the popup reflects the most recently evaluated page rather than a specific tab. Before any page has been evaluated, the popup shows the unsafe message.
-- Only HTTPS pages are evaluated, and the classifier receives the origin (`https://host`) rather than the full page URL.
-- The DNS lookup removes the first hostname label (for example `www.`), which assumes the site is visited through a subdomain.
-- In `worker.js`, a DNS error response is reported to the content script, but processing continues and can raise an error.
-- Model weights are not distributed in this repository, so `app.py` cannot load the model from a fresh clone without the two weight shards.
-- The audible alarm file (`siren.wav`) is not included. `manifest.json` lists `models/js/*` as a web accessible resource, but that folder does not exist under `extension/`.
-- The cloud host writes every screenshot to the same file (`python.png`), so concurrent `/image` requests can overwrite each other. Dependency versions are minimums, not pins.
-- The extension requests access to all sites (`<all_urls>`) and runs on every page, which this use case requires. Each evaluated origin is sent to the classifier service, and its hostname is sent to Google DNS.
-- The hosted classifier endpoint configured in `worker.js` may not be available; a self-hosted instance of `cloudHost/` can be used instead.
+- Trained model weights are proprietary and are not distributed with this repository. Place the two weight shards in `server/models/js/` as described in [Installation](#installation).
+- The extension sends the full URL of each visited web page to the configured classification server, and hostnames to the DNS over HTTPS resolver. Self-hosting the server keeps page URLs inside the organization's network.
+- The certificate check verifies certificates against the server host's system trust store. A certificate that fails verification never matches.
+- The extension requests access to all sites (`<all_urls>`) because every page load is evaluated.
 
 ## Roadmap
 
-- [ ] Compare resolved address sets after both lookups complete, and show the in-page banner from that verdict.
-- [ ] Extend protection from Bank of America to the other 13 named brand classes with a brand-to-domain map.
-- [ ] Send the full page URL to the classifier and use a unique temporary file per screenshot.
-- [ ] Add the certificate comparison embodiment, alone and combined with the IP check.
-- [ ] Add the similarity threshold and the screenshot clustering and retraining pipeline described in the patent.
+- [ ] Add the screenshot clustering and auto-labeling pipeline, and retrain the fully connected layer of the CNN on newly labeled pages, as described in the patent.
+- [ ] Report confirmed phishing pages to threat repositories such as PhishTank, OpenPhish, and Google Safe Browsing.
+- [ ] Extend the brand map to several legitimate domains per brand, for brands that host sign-in pages on separate domains.
+- [ ] Cache reference IP addresses and certificates per brand to reduce lookups on repeat visits.
+- [ ] Add an extension options page for the server URL, threshold, and brand map.
 
 ## License
 
