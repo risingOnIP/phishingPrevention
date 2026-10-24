@@ -22,7 +22,6 @@ const danger_popup  = function () {
    document.body.insertBefore(injectElement, document.body.firstChild)
 }
 
-console.log("Content Script Starting Now");
 
 let udw = 'boa'; //user defined website
 let popRequired = false;
@@ -37,7 +36,6 @@ let popRequired = false;
     }
     else {
         var link = response['url']
-        console.log("Link is: " + link);
     }
 
     //url is stored in 'link'
@@ -46,7 +44,6 @@ let popRequired = false;
         
        let pred = output.class;
         const t = true;
-        console.log("Predicted class is --> " + pred)
 
          if (pred == udw || t) {
              chrome.runtime.sendMessage({utility: "getIP"})
@@ -66,7 +63,6 @@ let popRequired = false;
                     else {
                         printing = ("IP addresses is: " + printing).slice(0, -2)
                     }
-                    console.log(printing);
                     
                  }
 
@@ -74,7 +70,6 @@ let popRequired = false;
     //             //ip addresses are stored in ip.ip[1]
     //             //string of ip addresses is stored in printing
     //             //classification is stored in pred
-                 console.log("about to set values")
                  let sameUdw = false;
                 chrome.runtime.sendMessage({utility: "getValidationIP"})
                 .then((v_IP) =>{
@@ -94,10 +89,6 @@ let popRequired = false;
                 }
 
                 chrome.storage.local.set({url: link, ipString: printing, ipArr : ip.ip[1], classification: pred, isSafe: safe})
-                .then(() =>
-                {
-                    console.log("values set")
-                })
 
 
 

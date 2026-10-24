@@ -19,17 +19,13 @@ function isProperResponse(jsonRes) {
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-        console.log("In 'worker.js' !!!")
 
         if (request.utility == 'getURL') {
             let returning = new URL(sender.tab.url)
             if (returning.protocol != "https:") {
-                console.log("got error message");
                 sendResponse({error: "not HTTPS"});
             }
             else {
-                console.log("passed error message");
-                console.log('url is --> ' + returning.protocol + "//" + returning.hostname)
                 sendResponse({url: returning.protocol + "//" + returning.hostname});
             }
         }
@@ -39,8 +35,6 @@ chrome.runtime.onMessage.addListener(
 
             //defining base variables
             let url = request.url;
-            console.log(typeof url);
-            console.log(url);
 
             //sending API request
             var myHeaders = new Headers();
@@ -58,10 +52,8 @@ chrome.runtime.onMessage.addListener(
             fetch(CLASSIFIER_API_URL, requestOptions)
             .then(response => response.json())
             .then(result => {
-                console.log("Result is --> " + result);
             
                 let returning = result;
-                console.log(returning)
                 sendResponse({"class": returning})
                 return true
             
@@ -73,7 +65,6 @@ chrome.runtime.onMessage.addListener(
 
         }
         if (request.utility == "getIP") {
-            console.log("Getting and returning an array of all IP addresses for the website that the user is on")
 
             //setting starting variables
             let url = new URL(sender.tab.url)
@@ -82,10 +73,8 @@ chrome.runtime.onMessage.addListener(
             let passingUrl = url.hostname
             const firstP = passingUrl.indexOf(".")
             passingUrl = passingUrl.substring(firstP+1, passingUrl.length)
-//            console.log("Passing URL is --> " + passingUrl)
 
             //fetching
-            console.log("about to fetch")
 
             var requestOptions = {
                 method: 'GET',
@@ -118,7 +107,6 @@ chrome.runtime.onMessage.addListener(
 
         }
         if (request.utility == "getValidationIP") {
-            console.log("Getting and returning an array of all IP addresses for bank of america")
 
             //setting starting variables
             let url = new URL("https://www.bankofamerica.com/random/path")
@@ -127,10 +115,8 @@ chrome.runtime.onMessage.addListener(
             let passingUrl = url.hostname
             const firstP = passingUrl.indexOf(".")
             passingUrl = passingUrl.substring(firstP+1, passingUrl.length)
-//            console.log("Passing URL is --> " + passingUrl)
 
             //fetching
-            console.log("about to fetch")
 
             var requestOptions = {
                 method: 'GET',
