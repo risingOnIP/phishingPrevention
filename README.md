@@ -217,8 +217,8 @@ sequenceDiagram
 1. Clone the repository.
 
    ```bash
-   git clone https://github.com/risingOnIP/phishingPrevention.git
-   cd phishingPrevention
+   git clone https://github.com/risingOnIP/phishing-prevention.git
+   cd phishing-prevention
    ```
 
 2. Create a virtual environment for the server and install its dependencies.
@@ -293,7 +293,7 @@ In the browser, open any page and click the toolbar icon. The popup shows "You a
 ## Project Structure
 
 ```text
-phishingPrevention/
+phishing-prevention/
 ├── docs/assets/
 │   ├── architecture.svg     # Architecture schematic
 │   └── banner.svg           # README banner
