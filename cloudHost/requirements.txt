@@ -1,0 +1,5 @@
+flask>=2.0
+selenium>=4.6
+tensorflowjs>=3.19
+numpy>=1.21
+pillow>=9.0
