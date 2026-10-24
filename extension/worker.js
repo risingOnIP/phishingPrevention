@@ -1,6 +1,10 @@
 //worker.js
 
-//###########################################---- Functions Start Here  ----#########################################\\
+// Brand classifier endpoint (cloudHost/app.py, POST /image).
+const CLASSIFIER_API_URL = "https://api.mathandscienceteam.com/image";
+
+// Google DNS-over-HTTPS resolver; the hostname is appended to this prefix.
+const DNS_RESOLVER_URL = "https://dns.google/resolve?name=";
 
 
 function isProperResponse(jsonRes) {
@@ -10,8 +14,6 @@ function isProperResponse(jsonRes) {
     return false
 }
 
-
-//##########################################---- Functions End Here  ----#############################################\\
 
 
 
@@ -39,7 +41,6 @@ chrome.runtime.onMessage.addListener(
             let url = request.url;
             console.log(typeof url);
             console.log(url);
-            let apiLink = "https://api.mathandscienceteam.com/image";
 
             //sending API request
             var myHeaders = new Headers();
@@ -54,7 +55,7 @@ chrome.runtime.onMessage.addListener(
                 redirect: 'follow'
             };
 
-            fetch(apiLink, requestOptions)
+            fetch(CLASSIFIER_API_URL, requestOptions)
             .then(response => response.json())
             .then(result => {
                 console.log("Result is --> " + result);
@@ -76,7 +77,6 @@ chrome.runtime.onMessage.addListener(
 
             //setting starting variables
             let url = new URL(sender.tab.url)
-            let apiBase = "https://dns.google.com/resolve?name="
 
             //getting full url
             let passingUrl = url.hostname
@@ -92,7 +92,7 @@ chrome.runtime.onMessage.addListener(
                 redirect: 'follow'
               };
 
-              fetch("https://dns.google/resolve?name=" + passingUrl, requestOptions)
+              fetch(DNS_RESOLVER_URL + passingUrl, requestOptions)
                 .then(response => response.json())
                 .then(result => {
 
@@ -122,7 +122,6 @@ chrome.runtime.onMessage.addListener(
 
             //setting starting variables
             let url = new URL("https://www.bankofamerica.com/random/path")
-            let apiBase = "https://dns.google.com/resolve?name="
 
             //getting full url
             let passingUrl = url.hostname
@@ -138,7 +137,7 @@ chrome.runtime.onMessage.addListener(
                 redirect: 'follow'
               };
 
-              fetch("https://dns.google/resolve?name=" + passingUrl, requestOptions)
+              fetch(DNS_RESOLVER_URL + passingUrl, requestOptions)
                 .then(response => response.json())
                 .then(result => {
 
