@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "Phishing Prevention Application - API Built in",
+    "name": "Phishing Prevention",
     "version": "1.0",
-    "description": "A chrome extension which detects and alerts users when on a phishing website.",
+    "description": "Flags look-alike phishing pages by recognizing the imitated brand and checking where the site is hosted.",
 
     "action": {
 
