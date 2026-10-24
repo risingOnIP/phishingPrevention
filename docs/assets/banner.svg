@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-label="Phishing Prevention">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#111827"/>
+      <stop offset="1" stop-color="#1F2937"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#FFFFFF" stroke-opacity="0.04" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="fade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0.55" stop-color="#111827" stop-opacity="1"/>
+      <stop offset="0.75" stop-color="#111827" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="320" rx="18" fill="url(#bg)"/>
+  <rect width="1280" height="320" rx="18" fill="url(#grid)"/>
+  <g>
+    <line x1="1102" y1="116" x2="1119" y2="130" stroke="#2563EB" stroke-opacity="0.45" stroke-width="1.5"/>
+    <line x1="1102" y1="116" x2="1046" y2="86" stroke="#2563EB" stroke-opacity="0.45" stroke-width="1.5"/>
+    <line x1="993" y1="122" x2="984" y2="98" stroke="#2563EB" stroke-opacity="0.45" stroke-width="1.5"/>
+    <line x1="993" y1="122" x2="1034" y2="77" stroke="#2563EB" stroke-opacity="0.45" stroke-width="1.5"/>
+    <line x1="1119" y1="130" x2="1063" y2="173" stroke="#2563EB" stroke-opacity="0.45" stroke-width="1.5"/>
+    <line x1="894" y1="129" x2="925" y2="113" stroke="#2563EB" stroke-opacity="0.45" stroke-width="1.5"/>
+    <line x1="894" y1="129" x2="909" y2="51" stroke="#2563EB" stroke-opacity="0.45" stroke-width="1.5"/>
+    <line x1="1075" y1="221" x2="1107" y2="241" stroke="#2563EB" stroke-opacity="0.45" stroke-width="1.5"/>
+    <line x1="1075" y1="221" x2="1063" y2="173" stroke="#2563EB" stroke-opacity="0.45" stroke-width="1.5"/>
+    <line x1="1046" y1="86" x2="1034" y2="77" stroke="#2563EB" stroke-opacity="0.45" stroke-width="1.5"/>
+    <line x1="1046" y1="86" x2="984" y2="98" stroke="#2563EB" stroke-opacity="0.45" stroke-width="1.5"/>
+    <line x1="873" y1="233" x2="925" y2="113" stroke="#2563EB" stroke-opacity="0.45" stroke-width="1.5"/>
+    <line x1="1004" y1="208" x2="1063" y2="173" stroke="#2563EB" stroke-opacity="0.45" stroke-width="1.5"/>
+    <line x1="1180" y1="184" x2="1107" y2="241" stroke="#2563EB" stroke-opacity="0.45" stroke-width="1.5"/>
+    <line x1="1034" y1="77" x2="984" y2="98" stroke="#2563EB" stroke-opacity="0.45" stroke-width="1.5"/>
+    <line x1="925" y1="113" x2="984" y2="98" stroke="#2563EB" stroke-opacity="0.45" stroke-width="1.5"/>
+    <circle cx="1102" cy="116" r="13" fill="#B45309" fill-opacity="0.12"/>
+    <circle cx="1102" cy="116" r="7" fill="#B45309"/>
+    <circle cx="993" cy="122" r="10" fill="#2563EB" fill-opacity="0.12"/>
+    <circle cx="993" cy="122" r="4" fill="#2563EB"/>
+    <circle cx="1119" cy="130" r="9" fill="#2563EB" fill-opacity="0.12"/>
+    <circle cx="1119" cy="130" r="3" fill="#2563EB"/>
+    <circle cx="894" cy="129" r="10" fill="#2563EB" fill-opacity="0.12"/>
+    <circle cx="894" cy="129" r="4" fill="#2563EB"/>
+    <circle cx="1075" cy="221" r="11" fill="#2563EB" fill-opacity="0.12"/>
+    <circle cx="1075" cy="221" r="5" fill="#2563EB"/>
+    <circle cx="1046" cy="86" r="10" fill="#2563EB" fill-opacity="0.12"/>
+    <circle cx="1046" cy="86" r="4" fill="#2563EB"/>
+    <circle cx="873" cy="233" r="11" fill="#2563EB" fill-opacity="0.12"/>
+    <circle cx="873" cy="233" r="5" fill="#2563EB"/>
+    <circle cx="1004" cy="208" r="11" fill="#2563EB" fill-opacity="0.12"/>
+    <circle cx="1004" cy="208" r="5" fill="#2563EB"/>
+    <circle cx="1063" cy="173" r="9" fill="#2563EB" fill-opacity="0.12"/>
+    <circle cx="1063" cy="173" r="3" fill="#2563EB"/>
+    <circle cx="1180" cy="184" r="11" fill="#2563EB" fill-opacity="0.12"/>
+    <circle cx="1180" cy="184" r="5" fill="#2563EB"/>
+    <circle cx="1107" cy="241" r="9" fill="#2563EB" fill-opacity="0.12"/>
+    <circle cx="1107" cy="241" r="3" fill="#2563EB"/>
+    <circle cx="1034" cy="77" r="10" fill="#2563EB" fill-opacity="0.12"/>
+    <circle cx="1034" cy="77" r="4" fill="#2563EB"/>
+    <circle cx="1205" cy="85" r="11" fill="#2563EB" fill-opacity="0.12"/>
+    <circle cx="1205" cy="85" r="5" fill="#2563EB"/>
+    <circle cx="925" cy="113" r="11" fill="#2563EB" fill-opacity="0.12"/>
+    <circle cx="925" cy="113" r="5" fill="#2563EB"/>
+    <circle cx="909" cy="51" r="10" fill="#2563EB" fill-opacity="0.12"/>
+    <circle cx="909" cy="51" r="4" fill="#2563EB"/>
+    <circle cx="984" cy="98" r="10" fill="#2563EB" fill-opacity="0.12"/>
+    <circle cx="984" cy="98" r="4" fill="#2563EB"/>
+  </g>
+  <rect width="1280" height="320" rx="18" fill="url(#fade)" fill-opacity="0.85"/>
+  <rect x="0" y="56" width="8" height="208" fill="#B45309"/>
+  <text x="72" y="128" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="58" font-weight="700" fill="#F9FAFB">Phishing Prevention</text>
+  <text x="72" y="176" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" fill="#CBD5E1">Detects look-alike phishing pages by recognizing the brand</text>
+  <text x="72" y="208" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" fill="#CBD5E1">they imitate and verifying where they are hosted.</text>
+  <rect x="72" y="248" width="250" height="32" rx="16" fill="#B45309" fill-opacity="0.18" stroke="#B45309" stroke-width="1.5"/>
+  <text x="197.0" y="269" text-anchor="middle" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13" font-weight="700" letter-spacing="1.2" fill="#F9FAFB">US PATENT 12,445,488 B2</text>
+  <rect x="334" y="248" width="184" height="32" rx="16" fill="#2563EB" fill-opacity="0.18" stroke="#2563EB" stroke-width="1.5"/>
+  <text x="426.0" y="269" text-anchor="middle" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13" font-weight="700" letter-spacing="1.2" fill="#F9FAFB">BROWSER SECURITY</text>
+  <rect x="530" y="248" width="175" height="32" rx="16" fill="#2563EB" fill-opacity="0.18" stroke="#2563EB" stroke-width="1.5"/>
+  <text x="617.5" y="269" text-anchor="middle" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13" font-weight="700" letter-spacing="1.2" fill="#F9FAFB">COMPUTER VISION</text>
+</svg>
