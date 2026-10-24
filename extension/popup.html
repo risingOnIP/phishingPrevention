@@ -3,38 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Phishing Prevention</title>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Mooli&family=Roboto+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
 
         body {
             margin: 0;
             padding: 20px;
-
             width: 600px;
-            /* height: 400px; */
 
             background-color: lightblue;
+            font-family: 'Roboto Mono', monospace;
 
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 20px;
-            /* align-items: center; */
+            gap: 16px;
+        }
+
+        /* Background follows the verdict status set by popup.js. */
+        body[data-status="phishing"] {
+            background-color: #FECACA;
+        }
+
+        body[data-status="error"],
+        body[data-status="skipped"] {
+            background-color: #E5E7EB;
+        }
+
+        .img-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        img.shield {
+            height: 120px;
         }
 
         .chars {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
+            min-height: 42px;
         }
 
         .text {
             font-size: 32px;
             font-weight: bold;
             color: black;
-            font-family: 'Roboto Mono';
+        }
+
+        .message {
+            margin: 0;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .evidence {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 13px;
+        }
+
+        .evidence:empty {
+            display: none;
         }
 
         .buttons {
@@ -50,13 +85,11 @@
             border-radius: 30px;
             border: 1px black solid;
             color: black;
-            font-family: 'Roboto Mono';
+            font-family: inherit;
             font-weight: bold;
             font-size: 14px;
-
             padding: 10px 2px;
-
-            background-color: lightblue;
+            background-color: transparent;
             transition: all ease 350ms;
         }
 
@@ -65,32 +98,19 @@
             background-color: black;
             cursor: pointer;
         }
-
-        .img-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
-
-        img.shield {
-            height: 120px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
     </style>
 </head>
 <body>
-    <div class="img-wrapper"><img class="shield" src="Shield.png"></div>
+    <div class="img-wrapper"><img class="shield" src="Shield.png" alt="Phishing Prevention shield"></div>
     <div class="chars"></div>
-    <embed src="siren.wav" autostart="true" width="0" height="0" id="siren" enablejavascript="true">
+    <p class="message"></p>
+    <ul class="evidence"></ul>
 
     <div class="buttons">
         <button id="close">Close Tab</button>
         <button id="dismiss">Dismiss</button>
     </div>
 
-    <script src="animate.js"></script>
+    <script src="popup.js"></script>
 </body>
 </html>
