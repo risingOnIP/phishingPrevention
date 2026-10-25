@@ -82,7 +82,7 @@ The method implemented in this repository is protected by [U.S. Patent No. 12,44
 - Brand protection services for banks, payment providers, and logistics companies.
 - Threat intelligence feeds that report confirmed phishing sites to repositories such as PhishTank, OpenPhish, and Google Safe Browsing.
 
-**Relationship to this code.** This repository implements the combined embodiment: image capture and CNN similarity with a configurable threshold, followed by both the IP address comparison and the certificate comparison against the legitimate brand's records, retrieved dynamically at check time. The screenshot clustering and retraining pipeline is listed in the [Roadmap](#roadmap).
+**Relationship to this code.** This repository implements the combined embodiment: image capture and CNN similarity with a configurable threshold, followed by both the IP address comparison and the certificate comparison against the legitimate brand's records, retrieved dynamically at check time. The patent additionally describes a screenshot clustering and retraining pipeline for the CNN.
 
 **Patent notice.** No license under this patent is granted by this repository, expressly or by implication. For licensing inquiries, contact the author via [GitHub](https://github.com/risingOnIP).
 
@@ -321,14 +321,6 @@ phishing-prevention/
 - The extension sends the full URL of each visited web page to the configured classification server, and hostnames to the DNS over HTTPS resolver. Self-hosting the server keeps page URLs inside the organization's network.
 - The certificate check verifies certificates against the server host's system trust store. A certificate that fails verification never matches.
 - The extension requests access to all sites (`<all_urls>`) because every page load is evaluated.
-
-## Roadmap
-
-- [ ] Add the screenshot clustering and auto-labeling pipeline, and retrain the fully connected layer of the CNN on newly labeled pages, as described in the patent.
-- [ ] Report confirmed phishing pages to threat repositories such as PhishTank, OpenPhish, and Google Safe Browsing.
-- [ ] Extend the brand map to several legitimate domains per brand, for brands that host sign-in pages on separate domains.
-- [ ] Cache reference IP addresses and certificates per brand to reduce lookups on repeat visits.
-- [ ] Add an extension options page for the server URL, threshold, and brand map.
 
 ## License
 
